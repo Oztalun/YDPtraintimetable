@@ -5,8 +5,6 @@ import pandas as pd
 from django.core.files.storage import FileSystemStorage
 from datetime import datetime, time
 from django.utils import timezone
-# 처음
-# @require_http_methods(["GET", "POST"])
 
 
 def TrainTTView(request):
@@ -96,8 +94,15 @@ def upload_excel(request):
 
 
 def train_list(request):
-    now = datetime.now().time()
+    now = timezone.localtime().time()
+    print(now)
     trains = Train.objects.all().order_by('id') # 기본 정렬 
+    # 시간 기준으로 리스트를 나눔
+    today_trains = trains.filter(departure_time__gte=now).order_by('departure_time')
+    tomorrow_trains = trains.filter(departure_time__lt=now).order_by('departure_time')
+
+    # 두 쿼리셋을 연결
+    trains = list(today_trains) + list(tomorrow_trains)
 
     # 검색 필터
     type_filter = request.GET.get('type')
