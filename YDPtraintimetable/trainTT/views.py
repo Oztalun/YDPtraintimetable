@@ -97,12 +97,6 @@ def train_list(request):
     now = timezone.localtime().time()
     print(now)
     trains = Train.objects.all().order_by('id') # 기본 정렬 
-    # 시간 기준으로 리스트를 나눔
-    today_trains = trains.filter(departure_time__gte=now).order_by('departure_time')
-    tomorrow_trains = trains.filter(departure_time__lt=now).order_by('departure_time')
-
-    # 두 쿼리셋을 연결
-    trains = list(today_trains) + list(tomorrow_trains)
 
     # 검색 필터
     type_filter = request.GET.get('type')
@@ -122,4 +116,12 @@ def train_list(request):
     if time_filter:
         trains = trains.filter(departure_time__icontains=time_filter)
 
+    ####필터를 사용하려면 리스트화 하기 전이여야 하므로 마지막에 진행
+    # 시간 기준으로 리스트를 나눔
+    today_trains = trains.filter(departure_time__gte=now).order_by('departure_time')
+    tomorrow_trains = trains.filter(departure_time__lt=now).order_by('departure_time')
+
+    # 두 쿼리셋을 연결
+    trains = list(today_trains) + list(tomorrow_trains)
+    
     return render(request, 'trainTT/train_list.html', {'trains': trains, 'request': request})
