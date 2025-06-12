@@ -26,10 +26,21 @@ TRAIN_PLATFORM =[
     ('9', 9),
 ]
 class TrainTimeTable(models.Model):
-    procedure = models.CharField(max_length=5)                          #순서대로 번호
     train_number = models.IntegerField()                                #열차 번호
-    arrive_time = models.TimeField()                                    #도착(출발) 시간
+    arrive_time = models.TimeField()                                    #도착(출발) 시간 {{ mymodel.start_time|time:"H:i" }}
     arrive_at = models.CharField(max_length=10, choices=TRAIN_ARRIVE_AT)#도착역
     train_type = models.CharField(max_length=20, choices=TRAIN_TYPES)   #열차 종류
     platform = models.CharField(max_length=5, choices=TRAIN_PLATFORM)   #홈
     # note =                                                            #비고
+    
+class Train(models.Model):
+    train_number = models.CharField(max_length=20)       # 열차번호
+    train_type = models.CharField(max_length=50)         # 열차종별 (KTX, 무궁화 등)
+    destination = models.CharField(max_length=100)       # 종착역
+    # arrival_time = models.TimeField()                    # 도착 시간
+    departure_time = models.TimeField(null=True, blank=True)  # 출발 시간
+    platform = models.CharField(max_length=10)           # 홈 (플랫폼)
+    note = models.CharField(max_length=200, blank=True)  # 비고 (옵션)
+
+    def __str__(self):
+        return f"{self.train_number} ({self.train_type})"

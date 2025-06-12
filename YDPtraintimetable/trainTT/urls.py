@@ -3,5 +3,7 @@ from django.urls import path
 from trainTT import views
 
 urlpatterns = [
-    path('', views.ArticleAPIView.as_view(), name='articles'), #리스트,생성
+    path('', views.TrainTTView, name='trainTimeTable'), #리스트,생성
+    path('upload/', views.upload_excel, name='upload_excel'),
+    path('trains/', views.train_list, name='train_list'),
 ]
