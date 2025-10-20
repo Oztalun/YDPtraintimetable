@@ -1,0 +1,26 @@
+<!-- templates/upload_form.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>엑셀 업로드</title>
+</head>
+<body>
+    <h1>열차 정보 엑셀 업로드</h1>
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form action="{% url 'upload_excel' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="excel_file">엑셀 파일 선택:</label>
+        <input type="file" name="excel_file" accept=".xls,.xlsx" required>
+        <button type="submit">업로드</button>
+    </form>
+</body>
+</html>

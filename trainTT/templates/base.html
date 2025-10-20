@@ -1,0 +1,185 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock title %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Noto Sans KR", sans-serif;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* ===== 네브바 공통 ===== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background-color: #003366;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .navbar .logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .navbar .menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar .menu a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .navbar .menu a:hover {
+            color: #66aaff;
+        }
+
+        /* ===== 모바일 햄버거 ===== */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 24px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            display: block;
+            height: 3px;
+            background: white;
+            border-radius: 2px;
+        }
+
+        /* ===== 사이드 메뉴 ===== */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -250px;
+            width: 250px;
+            height: 100%;
+            background-color: #002244;
+            color: white;
+            transition: right 0.3s ease;
+            padding-top: 60px;
+            z-index: 999;
+        }
+
+        .side-menu.open {
+            right: 0;
+        }
+
+        .side-menu a {
+            display: block;
+            padding: 15px 25px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .side-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* ===== 메인 콘텐츠 ===== */
+        main {
+            margin-top: 70px;
+            padding: 20px;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            background: #f3f6fa;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== 반응형 ===== */
+        @media (max-width: 768px) {
+            .navbar .menu {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+        }
+    </style>
+    {% block style %}{% endblock style %}
+    {% block script %}{% endblock script %}
+</head>
+
+<body>
+    <!-- 네브바 -->
+    <nav class="navbar">
+        <div class="logo">Korail</div>
+        <div class="menu">
+            <a href="#">홈</a>
+            <a href="/trains/">시간표</a>
+            <a href="#">공지사항</a>
+            <a href="#">문의</a>
+        </div>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <!-- 사이드 메뉴 (모바일용) -->
+    <div class="side-menu" id="sideMenu">
+        <a href="#">홈</a>
+        <a class="nav-link {% if request.path == '/trains/' %}active{% endif %}" href="/trains/">시간표</a>
+        <a href="#">공지사항</a>
+        <a href="#">문의</a>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <main>
+    </main>
+    {% block content %}{% endblock content %}
+    <script>
+        const hamburger = document.getElementById("hamburger");
+        const sideMenu = document.getElementById("sideMenu");
+
+        hamburger.addEventListener("click", () => {
+            sideMenu.classList.toggle("open");
+        });
+
+        // 메뉴 바깥 클릭 시 닫기
+        document.addEventListener("click", (e) => {
+            if (!sideMenu.contains(e.target) && !hamburger.contains(e.target)) {
+                sideMenu.classList.remove("open");
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

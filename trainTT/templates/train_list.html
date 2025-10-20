@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}상행열차 시간표{% endblock title %}
+{% block style %}
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: center;
+    }
+
+    th, td {
+        border: 2px solid black;
+        padding: 6px;
+    }
+
+    thead th {
+        background-color: #f5f5f5;
+    }
+
+    tr {
+        border: 2px solid black;
+    }
+</style>
+<style>
+    .tabs {
+        display: flex;
+        border-bottom: 2px solid #ccc;
+        margin-bottom: 15px;
+    }
+    .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        border-bottom: none;
+        background-color: #f8f8f8;
+        margin-right: 5px;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        transition: 0.2s;
+    }
+    .tab.active {
+        background-color: white;
+        font-weight: bold;
+        border-color: #aaa;
+    }
+    #content {
+        border: 1px solid #ccc;
+        padding: 15px;
+        border-radius: 0 8px 8px 8px;
+        background-color: #fff;
+    }
+    .loading {
+        text-align: center;
+        color: gray;
+    }
+    .tab-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .tab_button {
+        padding: 8px 16px;
+        border: 1px solid #ccc;
+        border-bottom: none;
+        background: #d3d3d3;
+        cursor: pointer;
+        border-radius: 8px 8px 0 0;
+        font-weight: bold;
+    }
+
+    .tab_button.active {
+        background: rgb(187, 219, 255);
+        border-bottom: 1px solid white;
+    }
+
+    .tab-content {
+        border: 1px solid #ccc;
+        padding: 15px;
+        background: white;
+        border-radius: 0 8px 8px 8px;
+        display: none;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+</style>
+<style>
+    .modal {
+        position: fixed;
+        z-index: 9999;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 600px; /* 가로 크기 확장 */
+        width: 90%;       /* 화면이 작을 때도 적절히 줄어듦 */
+        word-break: break-word;
+    }
+
+    .close {
+        float: right;
+        font-size: 20px;
+        cursor: pointer;
+    }
+</style>
+{% endblock style %}
+{% block script %}
+<script>
+    function resetTime() {
+        document.getElementById('time').value = '';  // 값 비우기
+    }
+
+    function resetForm() {
+        const form = document.getElementById('trainForm');
+        form.reset(); // 모든 입력 요소 초기화
+
+        // GET 파라미터가 남아있을 수도 있으므로, URL을 완전히 새로고침해서 정리
+        if (window.location.search) {
+            window.location.href = window.location.pathname; // 파라미터 제거 후 새로고침
+        }
+    }
+</script>
+<script>
+    // 탭 선택 함수
+    function showTab(tabId, btn) {
+        // 모든 탭 내용 숨기기
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        // 모든 탭 버튼 비활성화
+        document.querySelectorAll('.tab_button').forEach(b => b.classList.remove('active'));
+
+        // 선택한 탭 표시
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+
+        // 열차 리스트 불러오기
+        loadTrains(tabId);
+    }
+
+    // API 호출 후 테이블 생성
+    async function loadTrains(tabId) {
+        const container = document.getElementById(tabId);
+        container.innerHTML = '<div class="loading">불러오는 중...</div>';
+
+        try {
+            // GET 파라미터 생성
+            const params = new URLSearchParams({
+                waypoint: tabId // tabId를 waypoint로 전달
+            });
+            
+            const response = await fetch(`http://127.0.0.1:8000/api/trains/?${params.toString()}`);
+            if (!response.ok) throw new Error('서버 응답 오류');
+
+            const trains = await response.json();
+
+            if (!trains.length) {
+                container.innerHTML = '<p>🚫 열차 정보가 없습니다.</p>';
+                return;
+            }
+
+            // 테이블 생성
+            let html = '<table border="1" cellpadding="6"><thead><tr>' +
+                    '<th>열차번호</th><th>열차종별</th><th>종착역</th><th>출발시간</th><th>홈</th><th>비고</th>' +
+                    '</tr></thead><tbody>';
+
+            trains.forEach(train => {
+                let note = train.note && train.note !== "nan" ? train.note : ''; // nan이면 빈칸
+                let shortNote = note.length > 4 ? note.slice(0, 4) + '…' : note;
+
+                html += `<tr>
+                            <td>${train.train_number}</td>
+                            <td>${train.train_type}</td>
+                            <td>${train.destination}</td>
+                            <td>${train.departure_time ? train.departure_time.slice(0,5) : ''}</td>
+                            <td>${train.platform || ''}</td>
+                            <td ${note.length > 5 ? `style="cursor:pointer;color:blue;" onclick="showNoteModal('${note.replace(/'/g,"\\'")}')"` : ''}>
+                                ${shortNote}
+                            </td>
+                        </tr>`;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+
+        } catch (err) {
+            console.error(err);
+            container.innerHTML = `<p style="color:red;">❌ 오류 발생: ${err.message}</p>`;
+        }
+    }
+
+    // 페이지 로드 시 상행열차 탭 자동 선택
+    document.addEventListener('DOMContentLoaded', () => {
+        const firstButton = document.querySelector('.tab_button');
+        if (firstButton) {
+            showTab('up', firstButton);
+        }
+    });
+
+    function showNoteModal(noteText) {
+        document.getElementById('fullNote').innerText = noteText;
+        document.getElementById('noteModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('noteModal').style.display = 'none';
+    }
+</script>
+{% endblock script %}
+
+{% block content %}
+<!-- 모달 구조 -->
+<div id="noteModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <p id="fullNote"></p>
+    </div>
+</div>
+<div class="container mt-5">
+    <form method="get">
+
+        <label for="type">열차종별:</label>
+        <select name="type" id="type">
+            <option value="">-- 전체 --</option>
+            <option value="KTX" {% if request.GET.type == "KTX" %}selected{% endif %}>KTX</option>
+            <option value="ITX-마음" {% if request.GET.type == "ITX-마음" %}selected{% endif %}>ITX-마음</option>
+            <option value="무궁화" {% if request.GET.type == "무궁화" %}selected{% endif %}>무궁화</option>
+            <option value="I-새마을" {% if request.GET.type == "I-새마을" %}selected{% endif %}>I-새마을</option>
+        </select>
+
+        <label for="destination">종착역:</label>
+        <select name="destination" id="destination">
+            <option value="">-- 전체 --</option>
+            <option value="서울" {% if request.GET.destination == "서울" %}selected{% endif %}>서울</option>
+            <option value="용산" {% if request.GET.destination == "용산" %}selected{% endif %}>용산</option>
+        </select>
+
+        <input type="text" name="number" placeholder="열차번호" id="number"
+            value="{% if request.GET.number %}{{request.GET.number}}{%endif%}">
+
+        <!-- 시간 선택을 스크롤로 -->
+        <input type="time" name="time" id="time"
+            value="{% if request.GET.time %}{{request.GET.time}}{%endif%}"> 
+
+        <button type="submit">필터 적용</button>
+        <button type="button" onclick="resetTime()">취소</button>
+    </form>
+
+    <div class="tab-container">
+        <button class="tab_button" onclick="showTab('up', this)">상행열차</button>
+        <button class="tab_button" onclick="showTab('down', this)">하행열차</button>
+        <button class="tab_button" onclick="showTab('all', this)">전체보기</button>
+    </div>
+
+    <!-- 🔹 탭별 리스트 내용 -->
+    <div id="up" class="tab-content"></div>
+    <div id="down" class="tab-content"></div>
+    <div id="all" class="tab-content"></div>
+
+    <!-- <table>
+            <thead>
+                <tr>
+                    <th>열차번호</th>
+                    <th>열차종별</th>
+                    <th>종착역</th>
+                    <th>출발 시간</th>
+                    <th>홈</th>
+                    <th>비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for train in trains %}
+                <tr>
+                    <td>{{ train.train_number }}</td>
+                    <td>{{ train.train_type }}</td>
+                    <td>{{ train.destination }}</td>
+                    <td>{{ train.departure_time|time:"H:i" }}</td>
+                    <td>{{ train.platform }}</td>
+                    <td>{% if train.note != "nan" %}{{ train.note }}{% endif%}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    -->
+    
+</div>
+{% endblock content %}
