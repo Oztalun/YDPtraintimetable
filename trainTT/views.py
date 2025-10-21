@@ -142,38 +142,6 @@ def upload_excel(request):
 
 
 def train_list(request):
-    now = timezone.localtime().time()
-    trains = Train.objects.all()
-
-    # 검색 필터
-    type_filter = request.GET.get('type')
-    dest_filter = request.GET.get('destination')
-    number_filter = request.GET.get('number')
-    time_filter = request.GET.get('time')
-
-    if type_filter:
-        trains = trains.filter(train_type__icontains=type_filter)
-
-    if dest_filter:
-        trains = trains.filter(destination__icontains=dest_filter)
-
-    if number_filter:
-        trains = trains.filter(train_number__icontains=number_filter)
-
-    if time_filter:
-        trains = trains.filter(departure_time__icontains=time_filter)
-
-    # --------------------------------------------------------------------------------------
-    # 필터를 사용하려면 리스트화 하기 전이여야 하므로 마지막에 진행
-    # 시간 기준으로 리스트를 나눔
-    trains = trains.annotate(
-        is_after=Case(
-            When(departure_time__gte=now, then=Value(0)),
-            default=Value(1),
-            output_field=IntegerField(),
-        )
-    ).order_by('is_after', 'departure_time')
-
     return render(request, 'train_list.html')#, {'trains': trains, 'now': now, 'request': request}
 
 
