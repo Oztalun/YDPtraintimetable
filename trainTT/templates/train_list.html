@@ -9,7 +9,8 @@
         text-align: center;
     }
 
-    th, td {
+    th,
+    td {
         border: 2px solid black;
         padding: 6px;
     }
@@ -28,6 +29,7 @@
         border-bottom: 2px solid #ccc;
         margin-bottom: 15px;
     }
+
     .tab {
         padding: 10px 20px;
         cursor: pointer;
@@ -39,21 +41,25 @@
         border-top-right-radius: 8px;
         transition: 0.2s;
     }
+
     .tab.active {
         background-color: white;
         font-weight: bold;
         border-color: #aaa;
     }
+
     #content {
         border: 1px solid #ccc;
         padding: 15px;
         border-radius: 0 8px 8px 8px;
         background-color: #fff;
     }
+
     .loading {
         text-align: center;
         color: gray;
     }
+
     .tab-container {
         display: flex;
         gap: 10px;
@@ -82,36 +88,9 @@
         border-radius: 0 8px 8px 8px;
         display: none;
     }
-    
+
     .tab-content.active {
         display: block;
-    }
-</style>
-<style>
-    .modal {
-        position: fixed;
-        z-index: 9999;
-        left: 0; top: 0;
-        width: 100%; height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .modal-content {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        max-width: 600px; /* 가로 크기 확장 */
-        width: 90%;       /* 화면이 작을 때도 적절히 줄어듦 */
-        word-break: break-word;
-    }
-
-    .close {
-        float: right;
-        font-size: 20px;
-        cursor: pointer;
     }
 </style>
 {% endblock style %}
@@ -157,7 +136,7 @@
             const params = new URLSearchParams({
                 waypoint: tabId // tabId를 waypoint로 전달
             });
-            
+
             const response = await fetch(`${HOST_URL}/api/trains/?${params.toString()}`);
             if (!response.ok) throw new Error('서버 응답 오류');
 
@@ -170,8 +149,8 @@
 
             // 테이블 생성
             let html = '<table border="1" cellpadding="6"><thead><tr>' +
-                    '<th>열차번호</th><th>열차종별</th><th>종착역</th><th>출발시간</th><th>홈</th><th>비고</th>' +
-                    '</tr></thead><tbody>';
+                '<th>열차번호</th><th>열차종별</th><th>종착역</th><th>출발시간</th><th>홈</th><th>비고</th>' +
+                '</tr></thead><tbody>';
 
             trains.forEach(train => {
                 let note = train.note && train.note !== "nan" ? train.note : ''; // nan이면 빈칸
@@ -181,9 +160,9 @@
                             <td>${train.train_number}</td>
                             <td>${train.train_type}</td>
                             <td>${train.destination}</td>
-                            <td>${train.departure_time ? train.departure_time.slice(0,5) : ''}</td>
+                            <td>${train.departure_time ? train.departure_time.slice(0, 5) : ''}</td>
                             <td>${train.platform || ''}</td>
-                            <td ${note.length > 5 ? `style="cursor:pointer;color:blue;" onclick="showNoteModal('${note.replace(/'/g,"\\'")}')"` : ''}>
+                            <td ${note.length > 5 ? `style="cursor:pointer;color:blue;" onclick="showNoteModal('${note.replace(/'/g, "\\'")}')"` : ''}>
                                 ${shortNote}
                             </td>
                         </tr>`;
@@ -205,51 +184,35 @@
             showTab('up', firstButton);
         }
     });
-
-    function showNoteModal(noteText) {
-        document.getElementById('fullNote').innerText = noteText;
-        document.getElementById('noteModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('noteModal').style.display = 'none';
-    }
 </script>
 {% endblock script %}
 
 {% block content %}
-<!-- 모달 구조 -->
-<div id="noteModal" class="modal" style="display:none;">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <p id="fullNote"></p>
-    </div>
-</div>
+
 <div class="container mt-5">
     <form method="get">
 
         <label for="type">열차종별:</label>
         <select name="type" id="type">
             <option value="">-- 전체 --</option>
-            <option value="KTX" {% if request.GET.type == "KTX" %}selected{% endif %}>KTX</option>
-            <option value="ITX-마음" {% if request.GET.type == "ITX-마음" %}selected{% endif %}>ITX-마음</option>
-            <option value="무궁화" {% if request.GET.type == "무궁화" %}selected{% endif %}>무궁화</option>
-            <option value="I-새마을" {% if request.GET.type == "I-새마을" %}selected{% endif %}>I-새마을</option>
+            <option value="KTX" {% if request.GET.type=="KTX" %}selected{% endif %}>KTX</option>
+            <option value="ITX-마음" {% if request.GET.type=="ITX-마음" %}selected{% endif %}>ITX-마음</option>
+            <option value="무궁화" {% if request.GET.type=="무궁화" %}selected{% endif %}>무궁화</option>
+            <option value="I-새마을" {% if request.GET.type=="I-새마을" %}selected{% endif %}>I-새마을</option>
         </select>
 
         <label for="destination">종착역:</label>
         <select name="destination" id="destination">
             <option value="">-- 전체 --</option>
-            <option value="서울" {% if request.GET.destination == "서울" %}selected{% endif %}>서울</option>
-            <option value="용산" {% if request.GET.destination == "용산" %}selected{% endif %}>용산</option>
+            <option value="서울" {% if request.GET.destination=="서울" %}selected{% endif %}>서울</option>
+            <option value="용산" {% if request.GET.destination=="용산" %}selected{% endif %}>용산</option>
         </select>
 
         <input type="text" name="number" placeholder="열차번호" id="number"
             value="{% if request.GET.number %}{{request.GET.number}}{%endif%}">
 
         <!-- 시간 선택을 스크롤로 -->
-        <input type="time" name="time" id="time"
-            value="{% if request.GET.time %}{{request.GET.time}}{%endif%}"> 
+        <input type="time" name="time" id="time" value="{% if request.GET.time %}{{request.GET.time}}{%endif%}">
 
         <button type="submit">필터 적용</button>
         <button type="button" onclick="resetTime()">취소</button>
@@ -291,6 +254,6 @@
             </tbody>
         </table>
     -->
-    
+
 </div>
 {% endblock content %}
