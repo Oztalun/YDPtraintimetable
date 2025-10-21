@@ -158,7 +158,7 @@
                 waypoint: tabId // tabId를 waypoint로 전달
             });
             
-            const response = await fetch(`http://127.0.0.1:8000/api/trains/?${params.toString()}`);
+            const response = await fetch(`${HOST_URL}/api/trains/?${params.toString()}`);
             if (!response.ok) throw new Error('서버 응답 오류');
 
             const trains = await response.json();

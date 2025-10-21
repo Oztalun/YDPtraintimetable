@@ -130,7 +130,36 @@
                 display: flex;
             }
         }
+
+        
+        /* 스크롤바 전체 */
+        ::-webkit-scrollbar {
+            width: 10px;       /* 세로 스크롤바 두께 */
+        }
+
+        
+
+        /* 스크롤바 막대 */
+        ::-webkit-scrollbar-thumb {
+            background-color: #888;
+            border-radius: 6px;
+            margin: 2px; /* 이건 안되는거같음 슈밤*/
+        }
+
+        /* 스크롤바 막대 호버 */
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #555;
+        }
+
+        /* 스크롤바 트랙 */
+        ::-webkit-scrollbar-track {
+            background-color: #f0f0f0;
+            border-radius: 6px;
+        }
     </style>
+    <script>
+        const HOST_URL = "{{ host_url }}";
+    </script>
     {% block style %}{% endblock style %}
     {% block script %}{% endblock script %}
 </head>
@@ -140,10 +169,10 @@
     <nav class="navbar">
         <div class="logo">Korail</div>
         <div class="menu">
-            <a href="#">홈</a>
-            <a href="/trains/">시간표</a>
-            <a href="#">공지사항</a>
-            <a href="#">문의</a>
+            <a href="{{ host_url }}">홈</a>
+            <a href="{{ host_url }}trains/">시간표</a>
+            <a href="{{ host_url }}">공지사항</a>
+            <a href="{{ host_url }}">문의</a>
         </div>
         <div class="hamburger" id="hamburger">
             <span></span>

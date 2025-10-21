@@ -7,8 +7,13 @@ from datetime import datetime, time
 from django.utils import timezone
 from django.db.models import Case, When, Value, IntegerField
 from django.http import JsonResponse
-
+import os
+from dotenv import load_dotenv
 from django.http import JsonResponse
+
+load_dotenv()
+
+host_url = os.getenv("SERVER_URL")
 
 def train_api(request):
     now = timezone.localtime().time()
@@ -142,7 +147,7 @@ def upload_excel(request):
 
 
 def train_list(request):
-    return render(request, 'train_list.html')#, {'trains': trains, 'now': now, 'request': request}
+    return render(request, 'train_list.html', {'host_url':host_url})#, {'trains': trains, 'now': now, 'request': request}
 
 
 def downtrain_list(request):
