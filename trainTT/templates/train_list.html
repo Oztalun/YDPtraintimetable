@@ -195,17 +195,17 @@
         <label for="type">열차종별:</label>
         <select name="type" id="type">
             <option value="">-- 전체 --</option>
-            <option value="KTX" {% if request.GET.type=="KTX" %}selected{% endif %}>KTX</option>
-            <option value="ITX-마음" {% if request.GET.type=="ITX-마음" %}selected{% endif %}>ITX-마음</option>
-            <option value="무궁화" {% if request.GET.type=="무궁화" %}selected{% endif %}>무궁화</option>
-            <option value="I-새마을" {% if request.GET.type=="I-새마을" %}selected{% endif %}>I-새마을</option>
+            <option value="KTX" {% if request.GET.type == "KTX" %}selected{% endif %}>KTX</option>
+            <option value="ITX-마음" {% if request.GET.type == "ITX-마음" %}selected{% endif %}>ITX-마음</option>
+            <option value="무궁화" {% if request.GET.type == "무궁화" %}selected{% endif %}>무궁화</option>
+            <option value="I-새마을" {% if request.GET.type == "I-새마을" %}selected{% endif %}>I-새마을</option>
         </select>
 
         <label for="destination">종착역:</label>
         <select name="destination" id="destination">
             <option value="">-- 전체 --</option>
-            <option value="서울" {% if request.GET.destination=="서울" %}selected{% endif %}>서울</option>
-            <option value="용산" {% if request.GET.destination=="용산" %}selected{% endif %}>용산</option>
+            <option value="서울" {% if request.GET.destination == "서울" %}selected{% endif %}>서울</option>
+            <option value="용산" {% if request.GET.destination == "용산" %}selected{% endif %}>용산</option>
         </select>
 
         <input type="text" name="number" placeholder="열차번호" id="number"
