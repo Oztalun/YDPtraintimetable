@@ -9,9 +9,8 @@
         text-align: center;
     }
 
-    th,
-    td {
-        border: 2px solid black;
+    th, td {
+        border: 1px solid black;
         padding: 6px;
     }
 
@@ -20,7 +19,7 @@
     }
 
     tr {
-        border: 2px solid black;
+        border: 1px solid black;
     }
 </style>
 <style>
@@ -63,7 +62,6 @@
     .tab-container {
         display: flex;
         gap: 10px;
-        margin-bottom: 15px;
     }
 
     .tab_button {
@@ -91,6 +89,231 @@
 
     .tab-content.active {
         display: block;
+    }
+
+    /* 토글 버튼 스타일 */
+    .toggle-btn {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 14px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: 0.3s;
+        margin-bottom: 15px;
+    }
+    .toggle-btn:hover {
+        background-color: #0056b3;
+    }
+
+    /* 폼 스타일 */
+    .filter-form {
+        overflow: hidden;
+        opacity: 0;
+        transition: all 0.4s ease;
+        border-radius: 10px;
+        pointer-events: none; /* 클릭, 선택 불가 */
+    }
+
+    /* 안보이는 클래스 */
+    .invisible {
+        display: none !important;
+    }
+
+    /* show 클래스가 붙을 때 부드럽게 나타남 */
+    .filter-form.show {
+        max-height: 500px;
+        opacity: 1;
+        transform: translateY(0);
+        padding: 0PX 0PX 15px 0PX;
+    }
+
+    /* 내부 요소 스타일 */
+    .filter-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .filter-group select,
+    .filter-group input[type="text"],
+    .filter-group input[type="time"] {
+        padding: 8px 10px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+    form select,
+    form input[type="text"],
+    form input[type="time"] {
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        outline: none;
+    }
+
+    form select:focus,
+    form input[type="text"]:focus,
+    form input[type="time"]:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+    }
+
+    form select {
+        background-color: #fff;
+        cursor: pointer;
+    }
+
+
+    .button-group {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 15px;
+    }
+
+    /* 공통 버튼 스타일 */
+    .btn {
+        flex: 1;
+        max-width: 180px;
+        padding: 6px 14px;
+        font-size: 15px;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .button-group button {
+        flex: 1;
+        max-width: 180px;
+        padding: 10px 0;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        color: white;
+        background-color: #007bff;
+        transition: 0.2s;
+    }
+    .button-group button[type="button"] {
+        background-color: #6c757d;
+    }
+    .button-group button:active {
+        transform: scale(0.98);
+    }
+
+    /* 필터 적용 버튼 */
+    .apply-btn {
+        background: linear-gradient(135deg, #007bff, #0056d6);
+        color: #fff;
+    }
+    .apply-btn:hover {
+        background: linear-gradient(135deg, #3399ff, #007bff);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 10px rgba(0, 123, 255, 0.3);
+    }
+    .apply-btn:active {
+        transform: scale(0.97);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 취소 버튼 */
+    .cancel-btn {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        color: #fff;
+    }
+    .cancel-btn:hover {
+        background: linear-gradient(135deg, #868e96, #6c757d);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 10px rgba(108, 117, 125, 0.3);
+    }
+    .cancel-btn:active {
+        transform: scale(0.97);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 열별 최소 너비 */
+    th:nth-child(1), td:nth-child(1) { min-width: 60px; }
+    th:nth-child(2), td:nth-child(2) { min-width: 90px; }
+    th:nth-child(3), td:nth-child(3) { min-width: 100px; }
+    th:nth-child(4), td:nth-child(4) { min-width: 70px; }
+    th:nth-child(5), td:nth-child(5) { min-width: 40px; }
+    th:nth-child(6), td:nth-child(6) { min-width: 100px; }
+
+    /* ✅ 모바일 반응형 (768px 이하) */
+    @media (max-width: 768px) {
+        .filter-form {
+            display: flex;
+            flex-direction: column; /* 세로로 정렬 */
+            align-items: stretch;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .filter-form label {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .filter-form select,
+        .filter-form input[type="text"],
+        .filter-form input[type="time"] {
+            width: 100%;
+            padding: 6px 12px 6px 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .button-group {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            max-width: none;
+            font-size: 16px;
+            padding: 8px 0;
+        }
+
+        .button-group button {
+            flex: 1;
+            padding: 12px 0;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007bff;
+            color: white;
+        }
+
+        .button-group button[type="button"] {
+            background-color: #6c757d;
+        }
+
+        .button-group button:active {
+            transform: scale(0.98);
+        }
+
+        .tab-content {
+            border: 1px solid #ccc;
+            background: white;
+            padding: 0px;
+            border-radius: 0 8px 8px 8px;
+            display: none;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
     }
 </style>
 {% endblock style %}
@@ -184,13 +407,27 @@
             showTab('up', firstButton);
         }
     });
+
+    function toggleFilter() {
+        const form = document.querySelector('.filter-form');
+        const btn = document.querySelector('.toggle-btn');
+        // if (form.classList.contains('a')) {
+        //     form.classList.replace('a', 'b'); // a → b
+        // } else {
+        //     form.classList.replace('b', 'a'); // b → a
+        // }
+        form.classList.toggle('invisible');
+        form.classList.toggle('show');
+        btn.textContent = form.classList.contains('show') ? '🔽 필터 닫기' : '🔍 필터 열기';
+    }
 </script>
 {% endblock script %}
 
 {% block content %}
 
 <div class="container mt-5">
-    <form method="get">
+    <button type="button" class="toggle-btn" onclick="toggleFilter()">🔍 필터 열기</button>
+    <form method="get" class="filter-form invisible">
 
         <label for="type">열차종별:</label>
         <select name="type" id="type">
@@ -214,8 +451,8 @@
         <!-- 시간 선택을 스크롤로 -->
         <input type="time" name="time" id="time" value="{% if request.GET.time %}{{request.GET.time}}{%endif%}">
 
-        <button type="submit">필터 적용</button>
-        <button type="button" onclick="resetTime()">취소</button>
+        <button type="submit" class="btn apply-btn">검색</button>
+        <button type="button" class="btn cancel-btn" onclick="resetTime()">취소</button>
     </form>
 
     <div class="tab-container">
