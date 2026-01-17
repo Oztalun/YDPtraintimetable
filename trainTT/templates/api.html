@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="api-wrapper">
+    <div class="api-header">
+        <h2>{{ title }}</h2>
+        <div class="api-meta">
+            <span class="method">{{ method }}</span>
+            <span class="endpoint">{{ endpoint }}</span>
+        </div>
+        <p class="description">{{ description }}</p>
+    </div>
+
+    <!-- JSON 출력 영역 -->
+    <pre id="json-view"></pre>
+</div>
+
+<!-- ✅ 안전하게 JSON 전달 -->
+{{ api_data|json_script:"api-data" }}
+
+<script>
+    const data = JSON.parse(
+        document.getElementById("api-data").textContent
+    );
+
+    document.getElementById("json-view").textContent =
+        JSON.stringify(data, null, 2);
+</script>
+{% endblock content %}
+
+{% block style %}
+<style>
+.api-wrapper {
+    max-width: 1000px;
+    margin: auto;
+}
+
+.api-header {
+    margin-bottom: 20px;
+}
+
+.api-meta {
+    margin: 6px 0;
+}
+
+.method {
+    background: #2563eb;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.endpoint {
+    font-family: monospace;
+    color: #1e293b;
+}
+
+.description {
+    color: #475569;
+    font-size: 14px;
+}
+
+pre {
+    background: #020617;
+    color: #e5e7eb;
+    padding: 20px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: auto;
+}
+</style>
+{% endblock style %}

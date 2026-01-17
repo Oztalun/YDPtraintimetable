@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}지하철 실시간 도착 정보{% endblock title %}
+
+{% block style %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th,
+    td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    th {
+        background-color: #f4f4f4;
+    }
+
+    tr.arrived {
+        background-color: #d4edda;
+    }
+
+    tr.departed {
+        background-color: #fff3cd;
+    }
+
+    .last-train {
+        color: red;
+        font-weight: bold;
+    }
+
+    .control-box {
+        margin-bottom: 15px;
+    }
+
+    .control-box button {
+        padding: 8px 14px;
+        margin-right: 6px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .btn-start {
+        background: #28a745;
+        color: white;
+        border: none;
+    }
+
+    .btn-stop {
+        background: #dc3545;
+        color: white;
+        border: none;
+    }
+
+    .btn-test {
+        background: #007bff;
+        color: white;
+        border: none;
+    }
+</style>
+{% endblock style %}
+
+{% block content %}
+<h2>🚇 {{ station }} 실시간 도착 정보</h2>
+
+<div class="control-box">
+    <button id="startVoice" class="btn-start">🔊 안내 시작</button>
+    <button id="stopVoice" class="btn-stop">🔇 안내 종료</button>
+    <button id="testVoice" class="btn-test">▶ 테스트 음성</button>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>열차번호</th>
+            <th>상/하행</th>
+            <th>행선지</th>
+            <th>열차종류</th>
+            <th>도착까지</th>
+            <th>도착메시지</th>
+            <th>막차</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in trains %}
+        <tr data-train="{{ t.train_no }}" data-code="{{ t.arrival_code }}" data-msg="{{ t.msg1 }}" class="
+                {% if t.arrival_code == '1' %}arrived
+                {% elif t.arrival_code == '2' %}departed
+                {% endif %}
+            ">
+            <td>{{ t.train_no }}</td>
+            <td>{{ t.line }}</td>
+            <td>{{ t.destination }}</td>
+            <td>{{ t.train_type }}</td>
+            <td>
+                {% if t.arrival_sec == "0" %}
+                곧 도착
+                {% else %}
+                {{ t.arrival_sec }}초
+                {% endif %}
+            </td>
+            <td>{{ t.msg1 }} {{ t.msg2 }}</td>
+            <td>
+                {% if t.is_last %}
+                <span class="last-train">막차</span>
+                {% else %}
+                -
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    /* ===== 설정 ===== */
+    const TARGET_TRAINS = ["515", "217", "821", "230"];
+    let voiceEnabled = false;
+    const announced = new Set();
+
+    /* ===== 음성 ===== */
+    function speak(text) {
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = "ko-KR";
+        speechSynthesis.speak(msg);
+    }
+
+    /* ===== 버튼 ===== */
+    document.getElementById("startVoice").addEventListener("click", () => {
+        voiceEnabled = true;
+        speak("열차 도착 음성 안내를 시작합니다.");
+    });
+
+    document.getElementById("stopVoice").addEventListener("click", () => {
+        voiceEnabled = false;
+        speechSynthesis.cancel();
+    });
+
+    document.getElementById("testVoice").addEventListener("click", () => {
+        speak("음성 테스트입니다. 소리가 정상적으로 들립니다.");
+    });
+
+    /* ===== 도착 판단 ===== */
+    function checkArrivalVoice() {
+        if (!voiceEnabled) return;
+
+        document.querySelectorAll("tbody tr").forEach(row => {
+            const trainNo = row.dataset.train;
+            const code = row.dataset.code;
+            const msg = row.dataset.msg || "";
+
+            if (!TARGET_TRAINS.includes(trainNo)) return;
+
+            let stage = null;
+
+            if (code === "1") stage = "당역";
+            else if (code === "4" || msg.includes("전역")) stage = "전역";
+            else if (code === "99") stage = "전전역";
+
+            if (!stage) return;
+
+            const key = `${trainNo}-${stage}`;
+            if (announced.has(key)) return;
+
+            announced.add(key);
+            speak(`${trainNo}번 열차가 ${stage}에 도착했습니다.`);
+        });
+    }
+
+    /* 최초 1회 */
+    checkArrivalVoice();
+
+    /*
+    ⚠️ 페이지가 10초마다 새로고침되는 구조라면
+    새로고침 후에도 안내를 원하면:
+    - localStorage 로 voiceEnabled 저장 가능
+    */
+</script>
+{% endblock content %}

@@ -1,0 +1,65 @@
+<!-- metro/templates/metro/arrive.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ station }} 실시간 도착 정보</title>
+    <style>
+        body { font-family: Arial; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
+        th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+        th { background: #f2f2f2; }
+        .급행 { color: red; font-weight: bold; }
+        .특급 { color: purple; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<h1>🚉 {{ station }} 실시간 도착 정보</h1>
+
+<h2>⬆ 상행</h2>
+<table>
+    <tr>
+        <th>열차번호</th>
+        <th>종착역</th>
+        <th>종류</th>
+        <th>상태</th>
+        <th>도착시간</th>
+        <th>지연</th>
+    </tr>
+    {% for t in up %}
+    <tr>
+        <td>{{ t.train_no }}</td>
+        <td>{{ t.destination }}</td>
+        <td class="{{ t.type }}">{{ t.type }}</td>
+        <td>{{ t.status }}</td>
+        <td>{{ t.arrive_time }}</td>
+        <td>{{ t.delay }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h2>⬇ 하행</h2>
+<table>
+    <tr>
+        <th>열차번호</th>
+        <th>종착역</th>
+        <th>종류</th>
+        <th>상태</th>
+        <th>도착시간</th>
+        <th>지연</th>
+    </tr>
+    {% for t in down %}
+    <tr>
+        <td>{{ t.train_no }}</td>
+        <td>{{ t.destination }}</td>
+        <td class="{{ t.type }}">{{ t.type }}</td>
+        <td>{{ t.status }}</td>
+        <td>{{ t.arrive_time }}</td>
+        <td>{{ t.delay }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}1호선 실시간 열차 위치{% endblock title %}
+{% block script %}
+<script>
+    function refreshTable(fetchUrl, targetId) {
+        const scrollY = window.scrollY;
+
+        fetch(fetchUrl)
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById(targetId).innerHTML = html;
+                window.scrollTo(0, scrollY); // 🔥 스크롤 복원
+            });
+    }
+</script>
+{% endblock script %}
+
+
+{% block content %}
+<style>
+.line1-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.line1-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.line1-table thead {
+    background: #1e293b;
+    color: #fff;
+}
+
+.line1-table th,
+.line1-table td {
+    padding: 10px 12px;
+    text-align: center;
+}
+
+.line1-table tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.line1-table tbody tr:hover {
+    background: #f1f5f9;
+}
+
+/* ===== B 스타일 상태 뱃지 ===== */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.badge-arrive { background: #e0f2fe; color: #0369a1; }
+.badge-depart { background: #dcfce7; color: #166534; }
+.badge-enter  { background: #fef3c7; color: #92400e; }
+
+/* 기타 배지 */
+.badge-express { background: #fee2e2; color: #b91c1c; }
+.badge-normal  { background: #e5e7eb; color: #374151; }
+.badge-last {
+    background: #111827;
+    color: #fff;
+}
+</style>
+
+<div class="line1-title">🚆 1호선 실시간 열차 위치</div>
+
+<table class="line1-table">
+    <thead>
+        <tr>
+            <th>열차번호</th>
+            <th>현재역</th>
+            <th>종착역</th>
+            <th>상/하행</th>
+            <th>상태</th>
+            <th>급행</th>
+            <th>막차</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for t in trains %}
+        <tr>
+            <td>{{ t.trainNo }}</td>
+            <td>{{ t.statnNm }}</td>
+            <td>{{ t.statnTnm }}</td>
+            <td>{% if t.updnLine == "0" %}상행{% else %}하행{% endif %}</td>
+
+            <!-- 🔥 상태: B 스타일 적용 -->
+            <td>
+                {% if t.trainSttus == "0" %}
+                    <span class="badge badge-enter">진입</span>
+                {% elif t.trainSttus == "1" %}
+                    <span class="badge badge-arrive">도착</span>
+                {% elif t.trainSttus == "2" %}
+                    <span class="badge badge-depart">출발</span>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+
+            <td>
+                {% if t.directAt == "1" or t.directAt == "7" %}
+                    <span class="badge badge-express">급행</span>
+                {% else %}
+                    <span class="badge badge-normal">완행</span>
+                {% endif %}
+            </td>
+
+            <td>
+                {% if t.lstcarAt == "1" %}
+                    <span class="badge badge-last">막차</span>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="7">데이터가 없습니다.</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}

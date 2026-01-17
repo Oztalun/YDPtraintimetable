@@ -74,6 +74,12 @@
         font-weight: bold;
     }
 
+    .time-display {
+        padding: 8px 16px;
+        font-weight: 300;
+        font-size: 18px;
+    }
+
     .tab_button.active {
         background: rgb(187, 219, 255);
         border-bottom: 1px solid white;
@@ -91,18 +97,26 @@
         display: block;
     }
 
+    .top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* ⭐ 좌우 끝으로 */
+        width: 100%;
+    }
+
     /* 토글 버튼 스타일 */
     .toggle-btn {
         background-color: #007bff;
         color: white;
         padding: 10px 14px;
+        margin-bottom: 6px;
         border: none;
         border-radius: 8px;
         cursor: pointer;
         font-size: 15px;
         transition: 0.3s;
-        margin-bottom: 15px;
     }
+
     .toggle-btn:hover {
         background-color: #0056b3;
     }
@@ -125,7 +139,7 @@
         max-height: 500px;
         opacity: 1;
         transform: translateY(0);
-        padding: 0PX 0PX 15px 0PX;
+        padding: 6px 12px 6px 12px;
     }
 
     /* 내부 요소 스타일 */
@@ -201,9 +215,11 @@
         background-color: #007bff;
         transition: 0.2s;
     }
+
     .button-group button[type="button"] {
         background-color: #6c757d;
     }
+
     .button-group button:active {
         transform: scale(0.98);
     }
@@ -213,11 +229,13 @@
         background: linear-gradient(135deg, #007bff, #0056d6);
         color: #fff;
     }
+
     .apply-btn:hover {
         background: linear-gradient(135deg, #3399ff, #007bff);
         transform: translateY(-2px);
         box-shadow: 0 6px 10px rgba(0, 123, 255, 0.3);
     }
+
     .apply-btn:active {
         transform: scale(0.97);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -228,29 +246,55 @@
         background: linear-gradient(135deg, #6c757d, #5a6268);
         color: #fff;
     }
+
     .cancel-btn:hover {
         background: linear-gradient(135deg, #868e96, #6c757d);
         transform: translateY(-2px);
         box-shadow: 0 6px 10px rgba(108, 117, 125, 0.3);
     }
+
     .cancel-btn:active {
         transform: scale(0.97);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     /* 열별 최소 너비 */
-    th:nth-child(1), td:nth-child(1) { min-width: 60px; }
-    th:nth-child(2), td:nth-child(2) { min-width: 70px; }
-    th:nth-child(3), td:nth-child(3) { min-width: 80px; }
-    th:nth-child(4), td:nth-child(4) { min-width: 50px; }
-    th:nth-child(5), td:nth-child(5) { min-width: 20px; }
-    th:nth-child(6), td:nth-child(6) { min-width: 70px; }
+    th:nth-child(1),
+    td:nth-child(1) {
+        min-width: 60px;
+    }
+
+    th:nth-child(2),
+    td:nth-child(2) {
+        min-width: 70px;
+    }
+
+    th:nth-child(3),
+    td:nth-child(3) {
+        min-width: 80px;
+    }
+
+    th:nth-child(4),
+    td:nth-child(4) {
+        min-width: 50px;
+    }
+
+    th:nth-child(5),
+    td:nth-child(5) {
+        min-width: 20px;
+    }
+
+    th:nth-child(6),
+    td:nth-child(6) {
+        min-width: 70px;
+    }
 
     /* ✅ 모바일 반응형 (768px 이하) */
     @media (max-width: 768px) {
         .filter-form {
             display: flex;
-            flex-direction: column; /* 세로로 정렬 */
+            flex-direction: column;
+            /* 세로로 정렬 */
             align-items: stretch;
             gap: 12px;
             width: 100%;
@@ -265,7 +309,7 @@
         .filter-form input[type="text"],
         .filter-form input[type="time"] {
             width: 100%;
-            padding: 6px 12px 6px 12px;
+            padding: 0px 0px 6px 12px;
             font-size: 16px;
             border-radius: 8px;
             border: 1px solid #ccc;
@@ -356,13 +400,15 @@
         try {
             // GET 파라미터 생성
             const params = new URLSearchParams({
-                waypoint: tabId // tabId를 waypoint로 전달
+                waypoint: tabId
             });
 
             const response = await fetch(`${HOST_URL}/api/trains/?${params.toString()}`);
             if (!response.ok) throw new Error('서버 응답 오류');
 
-            const trains = await response.json();
+            // ✅ 변경된 부분
+            const data = await response.json();
+            const trains = data.trains || [];
 
             if (!trains.length) {
                 container.innerHTML = '<p>🚫 열차 정보가 없습니다.</p>';
@@ -375,19 +421,21 @@
                 '</tr></thead><tbody>';
 
             trains.forEach(train => {
-                let note = train.note && train.note !== "nan" ? train.note : ''; // nan이면 빈칸
+                let note = train.note && train.note !== "nan" ? train.note : '';
                 let shortNote = note.length > 4 ? note.slice(0, 4) + '…' : note;
 
                 html += `<tr>
-                            <td>${train.train_number}</td>
-                            <td>${train.train_type}</td>
-                            <td>${train.destination}</td>
-                            <td>${train.departure_time ? train.departure_time.slice(0, 5) : ''}</td>
-                            <td>${train.platform || ''}</td>
-                            <td ${note.length > 5 ? `style="cursor:pointer;color:blue;" onclick="showNoteModal('${note.replace(/'/g, "\\'")}')"` : ''}>
-                                ${shortNote}
-                            </td>
-                        </tr>`;
+                    <td>${train.train_number}</td>
+                    <td>${train.train_type}</td>
+                    <td>${train.destination}</td>
+                    <td>${train.departure_time ? train.departure_time.slice(0, 5) : ''}</td>
+                    <td>${train.platform || ''}</td>
+                    <td ${note.length > 5
+                        ? `style="cursor:pointer;color:blue;" onclick="showNoteModal('${note.replace(/'/g, "\\'")}')"`
+                        : ''}>
+                        ${shortNote}
+                    </td>
+                </tr>`;
             });
 
             html += '</tbody></table>';
@@ -398,6 +446,7 @@
             container.innerHTML = `<p style="color:red;">❌ 오류 발생: ${err.message}</p>`;
         }
     }
+
 
     // 페이지 로드 시 상행열차 탭 자동 선택
     document.addEventListener('DOMContentLoaded', () => {
@@ -420,12 +469,43 @@
         btn.textContent = form.classList.contains('show') ? '🔽 필터 닫기' : '🔍 필터 열기';
     }
 </script>
+<script>
+    // document.addEventListener('')
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchBtn = document.querySelector('.apply-btn');
+        searchBtn.addEventListener('click', loadTrains);
+    });
+</script>
+<script>
+    function updateTime() {
+        const now = new Date();
+
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const seconds = String(now.getSeconds()).padStart(2, "0");
+
+        document.getElementById("current-time").textContent =
+            `${hours}:${minutes}:${seconds}`;
+    }
+
+    // 1초마다 갱신
+    setInterval(updateTime, 1000);
+
+    // 처음 1번 즉시 실행
+    updateTime();
+</script>
 {% endblock script %}
 
 {% block content %}
 
 <div class="container mt-5">
-    <button type="button" class="toggle-btn" onclick="toggleFilter()">🔍 필터 열기</button>
+    <div class="top-bar">
+        <button type="button" class="toggle-btn" onclick="toggleFilter()">
+            🔍 필터 열기
+        </button>
+
+        <div id="current-time" class="time-display"></div>
+    </div>
     <form method="get" class="filter-form invisible">
 
         <label for="type">열차종별:</label>
@@ -450,7 +530,7 @@
         <!-- 시간 선택을 스크롤로 -->
         <input type="time" name="time" id="time" value="{% if request.GET.time %}{{request.GET.time}}{%endif%}">
 
-        <button type="submit" class="btn apply-btn">검색</button>
+        <button type="button" class="btn apply-btn">검색</button>
         <button type="button" class="btn cancel-btn" onclick="resetTime()">취소</button>
     </form>
 

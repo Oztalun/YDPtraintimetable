@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}1호선 실시간 열차 위치{% endblock %}
+
+{% block content %}
+<style>
+/* ===== 탭 ===== */
+.tab-buttons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.tab-btn {
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.tab-btn.active {
+    background: #1e293b;
+    color: #fff;
+}
+
+/* ===== 필터 ===== */
+.filter-buttons {
+    margin-bottom: 12px;
+}
+
+.filter-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #f8fafc;
+    cursor: pointer;
+    margin-right: 6px;
+    font-size: 13px;
+}
+
+.filter-btn.active {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+}
+
+/* ===== 테이블 ===== */
+.table-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #f4f6f8;
+}
+
+th, td {
+    padding: 12px;
+    font-size: 14px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+/* ===== 배지 ===== */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.badge-enter  { background: #fef3c7; color: #92400e; }
+.badge-arrive { background: #e0f2fe; color: #0369a1; }
+.badge-depart { background: #dcfce7; color: #166534; }
+
+.badge-express { background: #fee2e2; color: #991b1b; }
+.badge-normal  { background: #e5e7eb; color: #374151; }
+.badge-last    { background: #111827; color: #fff; }
+
+/* ===== 숨김 ===== */
+.hidden {
+    display: none;
+}
+</style>
+
+<h2>🚆 1호선 실시간 열차 위치</h2>
+
+<!-- 🔹 상단 탭 -->
+<div class="tab-buttons">
+    <button class="tab-btn active" data-tab="table">표 보기</button>
+    <button class="tab-btn" data-tab="map">그림 보기</button>
+</div>
+
+<!-- ================= 표 탭 ================= -->
+<div id="tab-table">
+
+    <!-- 상/하행 필터 -->
+    <div class="filter-buttons">
+        <button class="filter-btn active" data-filter="all">전체</button>
+        <button class="filter-btn" data-filter="0">상행</button>
+        <button class="filter-btn" data-filter="1">하행</button>
+    </div>
+
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>열차번호</th>
+                    <th>현재역</th>
+                    <th>종착역</th>
+                    <th>방향</th>
+                    <th>상태</th>
+                    <th>종류</th>
+                    <th>막차</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for t in trains %}
+                <tr data-updn="{{ t.updnLine }}">
+                    <td><strong>{{ t.trainNo }}</strong></td>
+                    <td>{{ t.statnNm }}</td>
+                    <td>{{ t.statnTnm }}</td>
+                    <td>{% if t.updnLine == "0" %}상행{% else %}하행{% endif %}</td>
+
+                    <td>
+                        {% if t.trainSttus == "0" %}
+                            <span class="badge badge-enter">진입</span>
+                        {% elif t.trainSttus == "1" %}
+                            <span class="badge badge-arrive">도착</span>
+                        {% elif t.trainSttus == "2" %}
+                            <span class="badge badge-depart">출발</span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if t.directAt == "1" or t.directAt == "7" %}
+                            <span class="badge badge-express">급행</span>
+                        {% else %}
+                            <span class="badge badge-normal">완행</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if t.lstcarAt == "1" %}
+                            <span class="badge badge-last">막차</span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7">데이터가 없습니다.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ================= 그림 탭 (빈 상태) ================= -->
+<div id="tab-map" class="hidden">
+    <div style="height:300px; border:2px dashed #cbd5e1; border-radius:12px;
+                display:flex; align-items:center; justify-content:center; color:#64748b;">
+        🚧 노선도 준비 중
+    </div>
+</div>
+
+<script>
+/* ===== 탭 전환 ===== */
+document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        document.getElementById("tab-table").classList.toggle("hidden", btn.dataset.tab !== "table");
+        document.getElementById("tab-map").classList.toggle("hidden", btn.dataset.tab !== "map");
+    });
+});
+
+/* ===== 상/하행 필터 ===== */
+document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const filter = btn.dataset.filter;
+        document.querySelectorAll("tbody tr").forEach(row => {
+            if (filter === "all" || row.dataset.updn === filter) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

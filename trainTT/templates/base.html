@@ -8,13 +8,17 @@
     <title>{% block title %}{% endblock title %}</title>
     <style>
         a {
-            text-decoration: none; /* 밑줄 제거 */
-            color: inherit;         /* 부모 색상 상속 */
-            cursor: pointer;        /* 클릭 커서 유지 */
+            text-decoration: none;
+            /* 밑줄 제거 */
+            color: inherit;
+            /* 부모 색상 상속 */
+            cursor: pointer;
+            /* 클릭 커서 유지 */
         }
 
         a:hover {
-            color: #007bff; /* 원하는 호버 색상 */
+            color: #007bff;
+            /* 원하는 호버 색상 */
             text-decoration: none;
         }
 
@@ -142,19 +146,21 @@
             }
         }
 
-        
+
         /* 스크롤바 전체 */
         ::-webkit-scrollbar {
-            width: 10px;       /* 세로 스크롤바 두께 */
+            width: 10px;
+            /* 세로 스크롤바 두께 */
         }
 
-        
+
 
         /* 스크롤바 막대 */
         ::-webkit-scrollbar-thumb {
             background-color: #888;
             border-radius: 6px;
-            margin: 2px; /* 이건 안되는거같음 슈밤*/
+            margin: 2px;
+            /* 이건 안되는거같음 슈밤*/
         }
 
         /* 스크롤바 막대 호버 */
@@ -175,10 +181,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            display: none; /* 처음 숨김 */
+            display: none;
+            /* 처음 숨김 */
             justify-content: center;
             align-items: center;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0, 0, 0, 0.5);
         }
 
         .modal-content {
@@ -195,6 +202,78 @@
             float: right;
         }
     </style>
+    <style>
+    /* ===== 공통 카드 ===== */
+    .card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        margin-bottom: 20px;
+    }
+
+    /* ===== 제목 ===== */
+    .page-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    /* ===== API 상태 바 ===== */
+    .api-status {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    /* ===== 배지 ===== */
+    .badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .badge-green { background: #e6f4ea; color: #137333; }
+    .badge-blue  { background: #e3f2fd; color: #1565c0; }
+    .badge-orange{ background: #fff3e0; color: #ef6c00; }
+    .badge-red   { background: #fdecea; color: #c62828; }
+
+    /* ===== 테이블 ===== */
+    .api-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .api-table th {
+        background: #f6f8fa;
+        font-weight: 600;
+    }
+
+    .api-table th,
+    .api-table td {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        text-align: center;
+    }
+
+    .api-table tr:hover {
+        background-color: #fafafa;
+    }
+
+    /* ===== 로딩 ===== */
+    .loading {
+        text-align: center;
+        padding: 20px;
+        color: #888;
+    }
+    </style>
+
     <script>
         const HOST_URL = "{{ host_url }}";
 
@@ -202,7 +281,7 @@
             const modal = document.getElementById('noteModal');
             const closeBtn = modal.querySelector('.close');
 
-            window.showNoteModal = function(noteText) {
+            window.showNoteModal = function (noteText) {
                 document.getElementById('fullNote').innerText = noteText;
                 modal.style.display = 'flex';
             }
@@ -215,7 +294,7 @@
             closeBtn.addEventListener('click', closeModal);
 
             // 모달 배경 클릭 시 닫기
-            modal.addEventListener('click', function(e) {
+            modal.addEventListener('click', function (e) {
                 if (!e.target.closest('.modal-content')) {
                     closeModal();
                 }
@@ -232,9 +311,9 @@
         <div class="logo"><a href="https://www.korail.com/intro">Korail</a></div>
         <div class="menu">
             <a href="{{ host_url }}">홈</a>
-            <a href="{{ host_url }}trains/">시간표</a>
-            <a href="{{ host_url }}">공지사항</a>
-            <a href="{{ host_url }}">문의</a>
+            <a href="{{ host_url }}trains/">열차 시간표</a>
+            <a href="{{ host_url }}subway/">지하철 시간표</a>
+            <a href="{{ host_url }}inquiry/">문의</a>
         </div>
         <div class="hamburger" id="hamburger">
             <span></span>
